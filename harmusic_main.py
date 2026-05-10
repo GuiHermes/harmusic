@@ -1,6 +1,4 @@
 # import pygame as py
-from textwrap import fill
-
 import customtkinter as ctk
 import requests
 from PIL import Image
@@ -45,7 +43,7 @@ def get_artist_id():
         link_button.pack(pady=10)
 
         # ================ MOSTRAR MUSICAS =============
-        show_music(artist_id, artist_name)
+        show_music(artist_id)
 
     except Exception as e:
         label_name_artist.configure(text=f'Digite o nome de um Artista')
@@ -53,17 +51,19 @@ def get_artist_id():
         return e
 
 
-def show_music(id, artista):
-    frame_main_musicas.pack(fill="both", padx=10, pady=10)
-    url_musics = f"https://api.deezer.com/search/artist/{id}/top"
+def show_music(identifier):
+    frame_main_musics.pack(fill="both", padx=10, pady=10)
+    url_musics = f"https://api.deezer.com/artist/{identifier}/top"
     response_musics = requests.get(url_musics)
     data_musics = response_musics.json()
-    if not data_musics:
-        label_music_list.configure(text=f"Erro ao carregar as musicas", font=("Arial", 25, "bold"))
-    else:
-        label_music_list.configure(text=f"Top Musicas de {artista}", font=("Arial", 25, "bold"))
+    musics = data_musics['data']
+    for widget in frame_main_musics.winfo_children():
+        widget.destroy()
+    try:
+        pass
 
-    pass
+    except Exception as e:
+        print(e)
 
 
 # =============== Definição da Janela ===============
@@ -84,6 +84,7 @@ application_name.pack(pady=10, side='left')
 
 search_artist = ctk.CTkEntry(frame_header, placeholder_text='Ex: Nome cantor')
 search_artist.pack(pady=10, padx=10, side='right')
+search_artist.bind("<Return>", lambda event: get_artist_id())
 
 search_button = ctk.CTkButton(frame_header, text="Procurar", command=get_artist_id)
 search_button.pack(pady=10, padx=10, side='right')
@@ -104,7 +105,7 @@ link_button = ctk.CTkButton(frame_main, text='', command=None)
 list_artist_music = ctk.CTkButton(frame_main, text='', command=None)
 
 # =============== Definição da MAIN_MUSICAS ===============
-frame_main_musicas = ctk.CTkFrame(app)
-label_music_list = ctk.CTkLabel(frame_main_musicas, text='')
-
+frame_main_musics = ctk.CTkFrame(app)
+label_music_list = ctk.CTkLabel(frame_main_musics, text='')
+get_artist_id()
 app.mainloop()
